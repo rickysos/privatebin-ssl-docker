@@ -1,12 +1,24 @@
 FROM php:fpm-alpine
 
-MAINTAINER PrivateBin <support@privatebin.org>
+MAINTAINER RickySoS 
 
 ENV RELEASE 1.2.1
 
 RUN \
 # Install dependencies
     apk add --no-cache nginx supervisor \
+# Install SSL
+  && apk add --update openssl nginx  \
+  && apk add --update tzdata  \
+  && mkdir /etc/nginx/certificates  \
+  && openssl req \
+    -x509 \
+    -newkey rsa:2048 \
+    -keyout /etc/nginx/certificates/key.pem \
+    -out /etc/nginx/certificates/cert.pem \
+    -days 365 \
+    -nodes \
+    -subj /CN=localhost \
 # Install PHP extension: opcache
     && docker-php-ext-install -j$(nproc) opcache \
     && rm -f /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
@@ -66,6 +78,6 @@ ADD usr/ /usr/
 # mark dirs as volumes that need to be writable, allows running the container --read-only
 VOLUME /srv/data /tmp /var/tmp /run /var/log
 
-EXPOSE 80
+EXPOSE 80 443
 
 ENTRYPOINT ["/usr/bin/supervisord","-c","/etc/supervisord.conf"]
