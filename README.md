@@ -1,5 +1,7 @@
 # PrivateBin on nginx, php-fpm & alpine
 
+PrivateBin with SSL, a new self signed cert is created everytime this container is rebuilt. A lot of work in progress
+
 **PrivateBin** is a minimalist, open source online [pastebin](https://en.wikipedia.org/wiki/Pastebin) where the server has zero knowledge of pasted data. Data is encrypted and decrypted in the browser using 256bit AES in [Galois Counter mode](https://en.wikipedia.org/wiki/Galois/Counter_Mode).
 
 This repository contains the Dockerfile and resources needed to create a docker image with a pre-installed PrivateBin instance in a secure default configuration. The images are based on the docker hub php:fpm-alpine image, extended with the GD module required to generate discussion avatars and the Nginx webserver to serve static JavaScript libraries, CSS & the logos. All logs of php-fpm and Nginx (access & errors) are forwarded to docker logs.
@@ -9,13 +11,13 @@ This repository contains the Dockerfile and resources needed to create a docker 
 Assuming you have docker successfully installed and internet access, you can fetch and run the image from the docker hub like this:
 
 ```bash
-docker run -d --restart="always" --read-only -p 8080:80 -v privatebin-data:/srv/data privatebin/nginx-fpm-alpine:1.2.1
+docker run -d --restart="always" --read-only -p 80:80 -p 443:443 rickysos/privbin
 ```
 
 The parameters in detail:
 
 - `-v privatebin-data:/srv/data` - replace `privatebin-data` with the path to the folder on your system, where the pastes and other service data should be persisted. This guarantees that your pastes aren't lost after you stop and restart the image or when you replace it. May be skipped if you just want to test the image.
-- `-p 8080:80` - The Nginx webserver inside the container listens on port 80, this parameter exposes it on your system on port 8080. Be sure to use a reverse proxy for HTTPS termination in front of it for production environments.
+- `-p 443:443` - The Nginx webserver inside the container listens on port 443, this parameter exposes it on your system on port 443. 
 - `--read-only` - This image supports running in read-only mode. Using this reduces the attack surface slightly, since an exploit in one of the images services can't overwrite arbitrary files in the container. Only /tmp, /var/tmp, /var/run & /srv/data may be written into.
 - `-d` - launches the container in the background. You can use `docker ps` and `docker logs` to check if the container is alive and well.
 - `--restart="always"` - restart the container if it crashes, mainly useful for production setups
@@ -25,7 +27,7 @@ The parameters in detail:
 In case you want to use a customized [conf.php](https://github.com/PrivateBin/PrivateBin/blob/master/cfg/conf.sample.php) file, for example one that has file uploads enabled or that uses a different template, add the file as a second volume:
 
 ```bash
-docker run -d --restart="always" --read-only -p 8080:80 -v conf.php:/srv/cfg/conf.php:ro -v privatebin-data:/srv/data privatebin/nginx-fpm-alpine:1.2.1
+docker run -d --restart="always" --read-only -p 443:443 -v conf.php:/srv/cfg/conf.php:ro -v privatebin-data:/srv/data rickysos/privbin 
 ```
 
 Note: The `Filesystem` data storage is supported out of the box. The image includes PDO modules for MySQL and SQLite, required for the `Database` one, but you still need to keep the /srv/data persisted for the server salt and the traffic limiter.
@@ -35,7 +37,7 @@ Note: The `Filesystem` data storage is supported out of the box. The image inclu
 To reproduce the image, run:
 
 ```bash
-docker build -t privatebin/nginx-fpm-alpine .
+docker build -t rickysos/privbin:test .
 ```
 
 ### Behind the scenes
