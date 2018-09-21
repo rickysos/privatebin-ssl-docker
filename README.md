@@ -11,7 +11,7 @@ This repository contains the Dockerfile and resources needed to create a docker 
 Assuming you have docker successfully installed and internet access, you can fetch and run the image from the docker hub like this:
 
 ```bash
-docker run -d --restart="always" --read-only -p 80:80 -p 443:443 rickysos/privbin
+docker run -d --restart="always" --name privbin --read-only -p 443:443 rickysos/privbin
 ```
 
 The parameters in detail:
@@ -27,7 +27,7 @@ The parameters in detail:
 In case you want to use a customized [conf.php](https://github.com/PrivateBin/PrivateBin/blob/master/cfg/conf.sample.php) file, for example one that has file uploads enabled or that uses a different template, add the file as a second volume:
 
 ```bash
-docker run -d --restart="always" --read-only -p 443:443 -v conf.php:/srv/cfg/conf.php:ro -v privatebin-data:/srv/data rickysos/privbin 
+docker run -d --restart="always"  --name privbin --read-only -p 443:443 -v conf.php:/srv/cfg/conf.php:ro -v privatebin-data:/srv/data rickysos/privbin 
 ```
 
 Note: The `Filesystem` data storage is supported out of the box. The image includes PDO modules for MySQL and SQLite, required for the `Database` one, but you still need to keep the /srv/data persisted for the server salt and the traffic limiter.
