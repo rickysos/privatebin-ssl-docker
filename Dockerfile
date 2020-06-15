@@ -2,7 +2,7 @@ FROM php:fpm-alpine
 
 MAINTAINER RickySoS 
 
-ENV RELEASE 1.2.1
+ENV RELEASE 1.3.4
 
 RUN \
 # Install dependencies
