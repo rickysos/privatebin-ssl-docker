@@ -1,8 +1,8 @@
 FROM php:fpm-alpine
 
-MAINTAINER RickySoS 
+MAINTAINER thomadoxt
 
-ENV RELEASE 1.2.1
+ENV RELEASE 1.3.4
 
 RUN \
 # Install dependencies
